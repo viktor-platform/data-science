@@ -48,7 +48,7 @@ class ProjectParametrization(Parametrization):
     numpy_interp.x = NumberField('x', min=0, max=6.2, step=0.1, default=0, variant='slider')
     numpy_interp.polynomial = NumberField('polynomial for interpolation', min=0, max=30, step=1, default=8,
                                           variant='slider')
-    numpy_interp.linspace = NumberField('number of samples', min=4, max=15, step=1, default=10, variant='slider')
+    numpy_interp.linspace = NumberField('number of samples', min=4, max=15, step=1, default=6, variant='slider')
     numpy_interp.show_graph = BooleanField('show interpolation', default=True)
     iris_page = Page('Iris visualization', views='iris_visualization')
     boxplot_page = Page('Boxplot visualization', views='boxplot_visualization')
