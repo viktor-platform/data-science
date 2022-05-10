@@ -72,13 +72,6 @@ class ProjectController(ViktorController):
                           color='lifeExp', hover_data=['iso_alpha'])
         return PlotlyResult(fig.to_json())
 
-    @PlotlyView("Results", duration_guess=3)
-    def plotly_sunburst_visualization(self, params, **kwargs):
-        df = px.data.gapminder().query(f'year == {params.plotly_express_sunburst.year}')
-        fig = px.sunburst(df, path=['continent', 'country'], values='pop',
-                          color='lifeExp', hover_data=['iso_alpha'])
-        return PlotlyResult(fig.to_json())
-
     @PlotlyAndDataView("Results", duration_guess=3)
     def numpy_interpolate(self, params, **kwargs):
         x = np.linspace(0, 2 * np.pi, params.numpy_interp.linspace)
