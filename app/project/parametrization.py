@@ -14,7 +14,10 @@ SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import math
+
 import pandas as pd
+from viktor.parametrization import BooleanField
 from viktor.parametrization import FileField
 from viktor.parametrization import NumberField
 from viktor.parametrization import OptionField
@@ -42,7 +45,11 @@ class ProjectParametrization(Parametrization):
     plotly_express_sunburst = Page('Plotly 2', views='plotly_sunburst_visualization')
     plotly_express_sunburst.year = NumberField('year', min=1952, max=2007, step=5, default=2007, variant='slider')
     numpy_interp = Page('Numpy interpolation', views='numpy_interpolate')
-    numpy_interp.
+    numpy_interp.x = NumberField('x', min=0, max=6.2, step=0.1, default=0, variant='slider')
+    numpy_interp.polynomial = NumberField('polynomial for interpolation', min=0, max=30, step=1, default=8,
+                                          variant='slider')
+    numpy_interp.linspace = NumberField('number of samples', min=4, max=15, step=1, default=10, variant='slider')
+    numpy_interp.show_graph = BooleanField('show interpolation', default=True)
     iris_page = Page('Iris visualization', views='iris_visualization')
     boxplot_page = Page('Boxplot visualization', views='boxplot_visualization')
     correllogram_page = Page('Correllogram visualization', views='correllogram_visualization')

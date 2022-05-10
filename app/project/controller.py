@@ -15,15 +15,22 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 SOFTWARE.
 """
 import io
+import math
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import seaborn as sns
+import plotly.graph_objects as go
 from viktor import UserException
 from viktor.core import ViktorController
+from viktor.views import DataGroup
+from viktor.views import DataItem
 from viktor.views import PNGResult
 from viktor.views import PNGView
+from viktor.views import PlotlyAndDataResult
+from viktor.views import PlotlyAndDataView
 from viktor.views import PlotlyResult
 from viktor.views import PlotlyView
 
@@ -72,11 +79,35 @@ class ProjectController(ViktorController):
                           color='lifeExp', hover_data=['iso_alpha'])
         return PlotlyResult(fig.to_json())
 
+    @PlotlyAndDataView("Results", duration_guess=3)
+    def numpy_interpolate(self, params, **kwargs):
+        x = np.linspace(0, 2 * np.pi, params.numpy_interp.linspace)
+        pol_x = np.linspace(0, 2 * np.pi, 100)
+
+        # interpolate over sinus curve
+        polyfit = np.polyfit(x, np.sin(x), params.numpy_interp.polynomial)
+        polyfit_function = np.poly1d(polyfit)
+        y_interpolated = polyfit_function(params.numpy_interp.x)
+
+        # create plotly figure
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=x, y=np.sin(x), name='Sin curve samples', mode='lines+markers'))
+        fig.add_scatter(x=[params.numpy_interp.x], y=[y_interpolated], name='intersection', line_color='black')
+        fig.add_vline(params.numpy_interp.x, line_color='cyan')
+        if params.numpy_interp.show_graph:
+            fig.add_trace(go.Scatter(x=pol_x, y=polyfit_function(pol_x), name='interpolation', mode='lines',
+                                     marker_color='red'))
+
+        data_group = DataGroup(
+            DataItem(label='y interpolated', value=y_interpolated),
+            DataItem(label='y real', value=math.sin(params.numpy_interp.x)),
+        )
+        return PlotlyAndDataResult(fig.to_json(), data_group)
+
     @PlotlyView("Results", duration_guess=3)
     def iris_visualization(self, params, **kwargs):
         df = px.data.iris()  # replace with your own data source
-        fig = px.scatter_matrix(
-            df, color="species")
+        fig = px.scatter_matrix(df, color="species")
         return PlotlyResult(fig.to_json())
 
     @PNGView("Results", duration_guess=3)
