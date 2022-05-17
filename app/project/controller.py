@@ -26,6 +26,7 @@ import plotly.graph_objects as go
 import seaborn as sns
 from viktor import UserException
 from viktor.core import ViktorController
+from viktor.result import DownloadResult
 from viktor.views import DataGroup
 from viktor.views import DataItem
 from viktor.views import PNGResult
@@ -46,20 +47,21 @@ class ProjectController(ViktorController):
 
     @PNGView("Results", duration_guess=3)
     def csv_visualization(self, params, **kwargs):
-        if not params.csv_file:
+        if not params.csv_page.file_link:
             raise UserException('Upload a CSV file and define its axis\'')
 
         try:
-            buffer = params.csv_file.file.open_binary()
+            buffer = params.csv_page.file_link.file.open_binary()
             df = pd.read_csv(buffer)
-            df.plot(kind='line', x=params.xaxis, y=params.yaxis)
+            df.plot(kind='scatter', x=params.csv_page.options_x, y=params.csv_page.options_y)
         except ValueError as err:
             raise UserException(err)
 
         buffer.close()
-        f = io.BytesIO()
-        plt.savefig(f, format="png")
-        return PNGResult(f)
+
+        png_buffer = io.BytesIO()
+        plt.savefig(png_buffer, format="png")
+        return PNGResult(png_buffer)
 
     @PlotlyView("Results", duration_guess=3)
     def plotly_gapminder_visualization(self, params, **kwargs):
@@ -82,22 +84,24 @@ class ProjectController(ViktorController):
         # create plotly figure
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=x, y=np.sin(x), name='Sin curve samples', mode='lines+markers'))
-        fig.add_scatter(x=[params.numpy_interp.x], y=[y_interpolated], name='intersection', line_color='black')
+        fig.add_scatter(x=[params.numpy_interp.x], y=[y_interpolated], name='Intersection', line_color='black')
         fig.add_vline(params.numpy_interp.x, line_color='cyan')
         if params.numpy_interp.show_graph:
-            fig.add_trace(go.Scatter(x=pol_x, y=polyfit_function(pol_x), name='interpolation', mode='lines',
+            fig.add_trace(go.Scatter(x=pol_x, y=polyfit_function(pol_x), name='Interpolation', mode='lines',
                                      marker_color='red'))
 
         data_group = DataGroup(
-            DataItem(label='y interpolated', value=y_interpolated),
-            DataItem(label='y real', value=math.sin(params.numpy_interp.x)),
+            DataItem(label='Y-interpolated', value=y_interpolated, number_of_decimals=4),
+            DataItem(label='Y-calculated', value=math.sin(params.numpy_interp.x), number_of_decimals=4),
+            DataItem(label='Error', value=np.abs(y_interpolated - math.sin(params.numpy_interp.x)),
+                     number_of_decimals=4)
         )
         return PlotlyAndDataResult(fig.to_json(), data_group)
 
-    @PNGView("Results", duration_guess=3)
+    @PNGView("Results", duration_guess=4)
     def pokemon_type_chord_diagram(self, params, **kwargs):
         df = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
-        possible_types = sorted(list(set(np.append(df['Type.1'].unique(), df['Type.2'].unique()))))
+        possible_types = params.pokemon_pandas.types
         n_types = len(possible_types)
 
         # Create correlation matrix
@@ -120,3 +124,10 @@ class ProjectController(ViktorController):
         f = io.BytesIO()
         plt.savefig(f, format="png")
         return PNGResult(f)
+
+    def download_pokemon_csv(self):
+        pokemon_file_path = Path(__file__).parent / 'datasets' / 'pokemon.csv'
+        pokemon_file_buffer = io.BytesIO()
+        with open(pokemon_file_path, "rb") as pokemon_file:
+            pokemon_file_buffer.write(pokemon_file.read())
+        return DownloadResult(pokemon_file_buffer, 'pokemon.csv')
