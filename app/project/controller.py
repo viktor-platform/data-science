@@ -24,7 +24,6 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import seaborn as sns
-from chord import Chord
 from viktor import UserException
 from viktor.core import ViktorController
 from viktor.views import DataGroup
@@ -35,31 +34,32 @@ from viktor.views import PlotlyAndDataResult
 from viktor.views import PlotlyAndDataView
 from viktor.views import PlotlyResult
 from viktor.views import PlotlyView
-from viktor.views import WebResult
-from viktor.views import WebView
 
 from .parametrization import ProjectParametrization
 
 
 class ProjectController(ViktorController):
     """Controller class which acts as interface for the Sample entity type."""
-    label = "Sample"
+    label = "Data"
     parametrization = ProjectParametrization
     viktor_convert_entity_field = True
 
-    @PlotlyView("Results", duration_guess=3)
+    @PNGView("Results", duration_guess=3)
     def csv_visualization(self, params, **kwargs):
         if not params.csv_file:
             raise UserException('Upload a CSV file and define its axis\'')
-        buffer = params.csv_file.file.open_binary()
-        df = pd.read_csv(buffer)
+
         try:
-            fig = px.line(df, x=params.xaxis, y=params.yaxis)
+            buffer = params.csv_file.file.open_binary()
+            df = pd.read_csv(buffer)
+            df.plot(kind='line', x=params.xaxis, y=params.yaxis)
         except ValueError as err:
             raise UserException(err)
 
         buffer.close()
-        return PlotlyResult(fig.to_json())
+        f = io.BytesIO()
+        plt.savefig(f, format="png")
+        return PNGResult(f)
 
     @PlotlyView("Results", duration_guess=3)
     def plotly_gapminder_visualization(self, params, **kwargs):
