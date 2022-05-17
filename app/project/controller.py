@@ -16,13 +16,15 @@ SOFTWARE.
 """
 import io
 import math
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.express as px
-import seaborn as sns
 import plotly.graph_objects as go
+import seaborn as sns
+from chord import Chord
 from viktor import UserException
 from viktor.core import ViktorController
 from viktor.views import DataGroup
@@ -33,6 +35,8 @@ from viktor.views import PlotlyAndDataResult
 from viktor.views import PlotlyAndDataView
 from viktor.views import PlotlyResult
 from viktor.views import PlotlyView
+from viktor.views import WebResult
+from viktor.views import WebView
 
 from .parametrization import ProjectParametrization
 
@@ -65,13 +69,6 @@ class ProjectController(ViktorController):
                          log_x=True, size_max=45, range_x=[100, 100000], range_y=[25, 90])
         return PlotlyResult(fig.to_json())
 
-    @PlotlyView("Results", duration_guess=3)
-    def plotly_sunburst_visualization(self, params, **kwargs):
-        df = px.data.gapminder().query(f'year == {params.plotly_express_sunburst.year}')
-        fig = px.sunburst(df, path=['continent', 'country'], values='pop',
-                          color='lifeExp', hover_data=['iso_alpha'])
-        return PlotlyResult(fig.to_json())
-
     @PlotlyAndDataView("Results", duration_guess=3)
     def numpy_interpolate(self, params, **kwargs):
         x = np.linspace(0, 2 * np.pi, params.numpy_interp.linspace)
@@ -97,84 +94,29 @@ class ProjectController(ViktorController):
         )
         return PlotlyAndDataResult(fig.to_json(), data_group)
 
-    @PlotlyView("Results", duration_guess=3)
-    def iris_visualization(self, params, **kwargs):
-        df = px.data.iris()  # replace with your own data source
-        fig = px.scatter_matrix(df, color="species")
-        return PlotlyResult(fig.to_json())
-
     @PNGView("Results", duration_guess=3)
-    def boxplot_visualization(self, params, **kwargs):
-        df = pd.read_csv("https://raw.githubusercontent.com/selva86/datasets/master/mpg_ggplot2.csv")
-        # Create Fig and gridspec
-        fig = plt.figure(figsize=(16, 10), dpi=80)
-        grid = plt.GridSpec(4, 4, hspace=0.5, wspace=0.2)
+    def pokemon_type_chord_diagram(self, params, **kwargs):
+        df = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
+        possible_types = list(set(np.append(df['Type.1'].unique(), df['Type.2'].unique())))
+        n_types = len(possible_types)
 
-        # Define the axes
-        ax_main = fig.add_subplot(grid[:-1, :-1])
-        ax_right = fig.add_subplot(grid[:-1, -1], xticklabels=[], yticklabels=[])
-        ax_bottom = fig.add_subplot(grid[-1, 0:-1], xticklabels=[], yticklabels=[])
+        # Create correlation matrix
+        matrix = [[0 for _ in range(n_types)] for _ in range(n_types)]
+        for i in range(n_types):
+            for j in range(n_types):
+                if i != j:
+                    connection_between_types = \
+                        df[(df['Type.1'] == possible_types[i]) & (df['Type.2'] == possible_types[j])].count()[0] + \
+                        df[(df['Type.1'] == possible_types[j]) & (df['Type.2'] == possible_types[i])].count()[0]
+                    matrix[i][j] = int(connection_between_types)
 
-        # Scatterplot on main ax
-        ax_main.scatter('displ', 'hwy', s=df.cty * 5, c=df.manufacturer.astype('category').cat.codes, alpha=.9, data=df,
-                        cmap="Set1", edgecolors='black', linewidths=.5)
-
-        # Add a graph in each part
-        sns.boxplot(df.hwy, ax=ax_right, orient="v")
-        sns.boxplot(df.displ, ax=ax_bottom, orient="h")
-
-        # Decorations ------------------
-        # Remove x axis name for the boxplot
-        ax_bottom.set(xlabel='')
-        ax_right.set(ylabel='')
-
-        # Main Title, Xlabel and YLabel
-        ax_main.set(title='Scatterplot with Histograms \n displ vs hwy', xlabel='displ', ylabel='hwy')
-
-        # Set font size of different components
-        ax_main.title.set_fontsize(20)
-        for item in (
-                [ax_main.xaxis.label, ax_main.yaxis.label] + ax_main.get_xticklabels() + ax_main.get_yticklabels()):
-            item.set_fontsize(14)
-        f = io.BytesIO()
-        plt.savefig(f, format="png")
-        return PNGResult(f)
-
-    @PNGView("Results", duration_guess=3)
-    def correllogram_visualization(self, params, **kwargs):
-        df = pd.read_csv("https://github.com/selva86/datasets/raw/master/mtcars.csv")
-
-        # Plot
+        # Plot figure
         plt.figure(figsize=(12, 10), dpi=80)
-        sns.heatmap(df.corr(), xticklabels=df.corr().columns, yticklabels=df.corr().columns, cmap='RdYlGn', center=0,
-                    annot=True)
-
-        # Decorations
-        plt.title('Correlogram of mtcars', fontsize=22)
+        sns.heatmap(matrix, xticklabels=possible_types, yticklabels=possible_types,
+                    cmap=sns.cubehelix_palette(as_cmap=True), annot=True)
+        plt.title('Correlation between pokemon types', fontsize=22)
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
-        f = io.BytesIO()
-        plt.savefig(f, format="png")
-        return PNGResult(f)
-
-    @PNGView("Results", duration_guess=3)
-    def car_mileage_visualization(self, params, **kwargs):
-        df = pd.read_csv("https://github.com/selva86/datasets/raw/master/mtcars.csv")
-        x = df.loc[:, ['mpg']]
-        df['mpg_z'] = (x - x.mean()) / x.std()
-        df['colors'] = ['red' if x < 0 else 'green' for x in df['mpg_z']]
-        df.sort_values('mpg_z', inplace=True)
-        df.reset_index(inplace=True)
-
-        # Draw plot
-        plt.figure(figsize=(14, 10), dpi=80)
-        plt.hlines(y=df.index, xmin=0, xmax=df.mpg_z, color=df.colors, alpha=0.4, linewidth=5)
-
-        # Decorations
-        plt.gca().set(ylabel='$Model$', xlabel='$Mileage$')
-        plt.yticks(df.index, df.cars, fontsize=12)
-        plt.title('Diverging Bars of Car Mileage', fontdict={'size': 20})
-        plt.grid(linestyle='--', alpha=0.5)
         f = io.BytesIO()
         plt.savefig(f, format="png")
         return PNGResult(f)
