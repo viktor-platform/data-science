@@ -97,7 +97,7 @@ class ProjectController(ViktorController):
     @PNGView("Results", duration_guess=3)
     def pokemon_type_chord_diagram(self, params, **kwargs):
         df = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
-        possible_types = list(set(np.append(df['Type.1'].unique(), df['Type.2'].unique())))
+        possible_types = sorted(list(set(np.append(df['Type.1'].unique(), df['Type.2'].unique()))))
         n_types = len(possible_types)
 
         # Create correlation matrix
