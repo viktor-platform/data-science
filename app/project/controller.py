@@ -100,25 +100,31 @@ class ProjectController(ViktorController):
 
     @PNGView("Results", duration_guess=4)
     def pokemon_type_chord_diagram(self, params, **kwargs):
-        df = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
         possible_types = params.pokemon_pandas.types
         n_types = len(possible_types)
+
+        if n_types < 2:
+            raise UserException("Please select more then 1 pokemon type as input. Click on Select all to see the"
+                                "full figure.")
+
+        df = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
 
         # Create correlation matrix
         matrix = [[0 for _ in range(n_types)] for _ in range(n_types)]
         for i in range(n_types):
             for j in range(n_types):
                 if i != j:
-                    connection_between_types = \
-                        df[(df['Type.1'] == possible_types[i]) & (df['Type.2'] == possible_types[j])].count()[0] + \
-                        df[(df['Type.1'] == possible_types[j]) & (df['Type.2'] == possible_types[i])].count()[0]
-                    matrix[i][j] = int(connection_between_types)
+                    connection_between_types = (
+                            df[(df['Type.1'] == possible_types[i]) & (df['Type.2'] == possible_types[j])].count()[0] +
+                            df[(df['Type.1'] == possible_types[j]) & (df['Type.2'] == possible_types[i])].count()[0]
+                    )
+                    matrix[i][j] = np.round(connection_between_types / df.shape[0] * 100, 2)
 
         # Plot figure
         plt.figure(figsize=(12, 10), dpi=80)
         sns.heatmap(matrix, xticklabels=possible_types, yticklabels=possible_types,
                     cmap=sns.cubehelix_palette(as_cmap=True), annot=True)
-        plt.title('Correlation between pokemon types', fontsize=22)
+        plt.title('% of pokemon having both types', fontsize=22)
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
         f = io.BytesIO()
