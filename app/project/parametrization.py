@@ -48,7 +48,7 @@ EXPLANATION_PLOTLY = "## Plotly integration \nWith VIKTOR it is super easy to us
                      "library. This is done with just 3 lines of code!"
 
 EXPLANATION_NUMPY = "## Numpy interpolation \nThis example is used to show how you can create interactive apps using " \
-                    "VIKTOR. In this example you can pick samples from a sin function. Then use numpy to estimate a" \
+                    "VIKTOR. In this example you can pick samples from a sin function. Then use numpy to estimate a " \
                     "interpolation with a given polynomial. Finally, you can check the error at a certain x value. " \
                     "\n\nFirst define the amount of samples below."
 
@@ -91,7 +91,7 @@ class ProjectParametrization(Parametrization):
     csv_page.options_y = OptionField('Y axis', options=get_possible_columns)
     csv_page.explanation_matplotlib = Text(EXPLANATION_MATPLOTLIB)
 
-    plotly_express_page = Page('Plotly', views='plotly_gapminder_visualization')
+    plotly_express_page = Page('Plotly', views='plotly_visualization')
     plotly_express_page.explanation = Text(EXPLANATION_PLOTLY)
 
     numpy_interp = Page('Numpy interpolation', views='numpy_interpolate')
@@ -104,6 +104,6 @@ class ProjectParametrization(Parametrization):
     numpy_interp.explanation_numpy_error = Text(EXPLANATION_NUMPY_ERROR)
     numpy_interp.x = NumberField('X value', min=0, max=6.2, step=0.1, default=0, variant='slider')
 
-    pokemon_pandas = Page('Pokemon with pandas', views='pokemon_type_chord_diagram')
+    pokemon_pandas = Page('Pokemon with pandas', views='pokemon_type_heat_map')
     pokemon_pandas.explanation = Text(EXPLANATION_PANDAS)
     pokemon_pandas.types = MultiSelectField('Possible pokemon types', options=get_possible_pokemon_types)

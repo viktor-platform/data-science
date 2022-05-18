@@ -40,13 +40,14 @@ from .parametrization import ProjectParametrization
 
 
 class ProjectController(ViktorController):
-    """Controller class which acts as interface for the Sample entity type."""
+    """Controller class which acts as interface for this entity type."""
     label = "Data"
     parametrization = ProjectParametrization
     viktor_convert_entity_field = True
 
     @PNGView("Results", duration_guess=3)
     def csv_visualization(self, params, **kwargs):
+        """Reads csv file and plots its data."""
         if not params.csv_page.file_link:
             raise UserException('Upload a CSV file and define its axis\'')
 
@@ -64,7 +65,8 @@ class ProjectController(ViktorController):
         return PNGResult(png_buffer)
 
     @PlotlyView("Results", duration_guess=3)
-    def plotly_gapminder_visualization(self, params, **kwargs):
+    def plotly_visualization(self, params, **kwargs):
+        """Use the build-in gapminder dataset from plotly to create a plot."""
         df = px.data.gapminder()
         fig = px.scatter(df, x="gdpPercap", y="lifeExp", animation_frame="year", animation_group="country",
                          size="pop", color="continent", hover_name="country", facet_col="continent",
@@ -73,15 +75,16 @@ class ProjectController(ViktorController):
 
     @PlotlyAndDataView("Results", duration_guess=3)
     def numpy_interpolate(self, params, **kwargs):
+        """Picks samples from a sin function and plots an interpolation with a given polynomial"""
         x = np.linspace(0, 2 * np.pi, params.numpy_interp.linspace)
         pol_x = np.linspace(0, 2 * np.pi, 100)
 
-        # interpolate over sinus curve
+        # Interpolate over sinus curve
         polyfit = np.polyfit(x, np.sin(x), params.numpy_interp.polynomial)
         polyfit_function = np.poly1d(polyfit)
         y_interpolated = polyfit_function(params.numpy_interp.x)
 
-        # create plotly figure
+        # Create plotly figure
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=x, y=np.sin(x), name='Sin curve samples', mode='lines+markers'))
         fig.add_scatter(x=[params.numpy_interp.x], y=[y_interpolated], name='Intersection', line_color='black')
@@ -90,6 +93,7 @@ class ProjectController(ViktorController):
             fig.add_trace(go.Scatter(x=pol_x, y=polyfit_function(pol_x), name='Interpolation', mode='lines',
                                      marker_color='red'))
 
+        # Create data group
         data_group = DataGroup(
             DataItem(label='Y-interpolated', value=y_interpolated, number_of_decimals=4),
             DataItem(label='Y-calculated', value=math.sin(params.numpy_interp.x), number_of_decimals=4),
@@ -99,7 +103,8 @@ class ProjectController(ViktorController):
         return PlotlyAndDataResult(fig.to_json(), data_group)
 
     @PNGView("Results", duration_guess=4)
-    def pokemon_type_chord_diagram(self, params, **kwargs):
+    def pokemon_type_heat_map(self, params, **kwargs):
+        """ Using the Pokemon database to create a correlation matrix en plots a heatmap"""
         possible_types = params.pokemon_pandas.types
         n_types = len(possible_types)
 
@@ -132,6 +137,7 @@ class ProjectController(ViktorController):
         return PNGResult(f)
 
     def download_pokemon_csv(self):
+        """ Download the Pokemon CSV dataset"""
         pokemon_file_path = Path(__file__).parent / 'datasets' / 'pokemon.csv'
         pokemon_file_buffer = io.BytesIO()
         with open(pokemon_file_path, "rb") as pokemon_file:
