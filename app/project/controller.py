@@ -67,8 +67,8 @@ class ProjectController(ViktorController):
     @PlotlyView("Results", duration_guess=3)
     def plotly_visualization(self, params, **kwargs):
         """Use the build-in gapminder dataset from plotly to create a plot."""
-        df = px.data.gapminder()
-        fig = px.scatter(df, x="gdpPercap", y="lifeExp", animation_frame="year", animation_group="country",
+        dataframe = px.data.gapminder()
+        fig = px.scatter(dataframe, x="gdpPercap", y="lifeExp", animation_frame="year", animation_group="country",
                          size="pop", color="continent", hover_name="country", facet_col="continent",
                          log_x=True, size_max=45, range_x=[100, 100000], range_y=[25, 90])
         return PlotlyResult(fig.to_json())
@@ -112,7 +112,7 @@ class ProjectController(ViktorController):
             raise UserException("Please select more then 1 pokemon type as input. Click on Select all to see the"
                                 "full figure.")
 
-        df = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
+        dataframe = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
 
         # Create correlation matrix
         matrix = [[0 for _ in range(n_types)] for _ in range(n_types)]
@@ -120,10 +120,16 @@ class ProjectController(ViktorController):
             for j in range(n_types):
                 if i != j:
                     connection_between_types = (
-                            df[(df['Type.1'] == possible_types[i]) & (df['Type.2'] == possible_types[j])].count()[0] +
-                            df[(df['Type.1'] == possible_types[j]) & (df['Type.2'] == possible_types[i])].count()[0]
+                            dataframe[
+                                (dataframe['Type.1'] == possible_types[i]) &
+                                (dataframe['Type.2'] == possible_types[j])
+                            ].count()[0] +
+                            dataframe[
+                                (dataframe['Type.1'] == possible_types[j]) &
+                                (dataframe['Type.2'] == possible_types[i])
+                            ].count()[0]
                     )
-                    matrix[i][j] = np.round(connection_between_types / df.shape[0] * 100, 2)
+                    matrix[i][j] = np.round(connection_between_types / dataframe.shape[0] * 100, 2)
 
         # Plot figure
         plt.figure(figsize=(12, 10), dpi=80)

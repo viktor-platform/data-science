@@ -14,7 +14,6 @@ SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import math
 from pathlib import Path
 
 import numpy as np
@@ -68,16 +67,16 @@ def get_possible_columns(params, **kwargs):
     """Get all possible column names"""
     if params.csv_page.file_link:
         buffer = params.csv_page.file_link.file.open_binary()
-        df = pd.read_csv(buffer)
+        dataframe = pd.read_csv(buffer)
         buffer.close()
-        return df.columns.values.tolist()
+        return dataframe.columns.values.tolist()
     return ['First upload a CSV file']
 
 
 def get_possible_pokemon_types(params, **kwargs):
     """Get all possible values in type.1 and type.2 column. Excluding NA values"""
-    df = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
-    return sorted(list(set(np.append(df['Type.1'].unique(), df['Type.2'].unique()))))
+    dataframe = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
+    return sorted(list(set(np.append(dataframe['Type.1'].unique(), dataframe['Type.2'].unique()))))
 
 
 class ProjectParametrization(Parametrization):
