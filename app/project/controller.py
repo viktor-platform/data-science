@@ -45,7 +45,7 @@ class ProjectController(ViktorController):
     parametrization = ProjectParametrization
     viktor_convert_entity_field = True
 
-    @PNGView("Results", duration_guess=3)
+    @PNGView("Results", duration_guess=4)
     def csv_visualization(self, params, **kwargs):
         """Reads csv file and plots its data."""
         if not params.csv_page.file_link:

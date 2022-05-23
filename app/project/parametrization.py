@@ -63,6 +63,12 @@ EXPLANATION_PANDAS = "The last example shows how easy you can do data manipulati
                      "on `Select all` to see the full plot. Then press the update button right below."
 
 
+def get_possible_pokemon_types(params, **kwargs):
+    """Get all possible values in type.1 and type.2 column. Excluding NA values"""
+    dataframe = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
+    return sorted(list(set(np.append(dataframe['Type.1'].unique(), dataframe['Type.2'].unique()))))
+
+
 def get_possible_columns(params, **kwargs):
     """Get all possible column names"""
     if params.csv_page.file_link:
@@ -71,12 +77,6 @@ def get_possible_columns(params, **kwargs):
         buffer.close()
         return dataframe.columns.values.tolist()
     return ['First upload a CSV file']
-
-
-def get_possible_pokemon_types(params, **kwargs):
-    """Get all possible values in type.1 and type.2 column. Excluding NA values"""
-    dataframe = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
-    return sorted(list(set(np.append(dataframe['Type.1'].unique(), dataframe['Type.2'].unique()))))
 
 
 class ProjectParametrization(Parametrization):
