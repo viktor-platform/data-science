@@ -2,15 +2,12 @@ version: '1'
 
 # Define all entity types
 entity_types:
-  ProjectFolder:
-    has_designer: false
-    show_properties: false
   Project:
     has_designer: true
-    show_properties: true
+    show_properties: false
 
 # On app start, create sample entity
 entities:
-- entity_type: ProjectFolder
+- entity_type: Project
   properties:
-    name: Projects
+    name: Data-science

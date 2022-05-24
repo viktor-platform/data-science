@@ -26,9 +26,12 @@ import plotly.graph_objects as go
 import seaborn as sns
 from viktor import UserException
 from viktor.core import ViktorController
+from viktor.core import progress_message
 from viktor.result import DownloadResult
 from viktor.views import DataGroup
 from viktor.views import DataItem
+from viktor.views import PNGAndDataResult
+from viktor.views import PNGAndDataView
 from viktor.views import PNGResult
 from viktor.views import PNGView
 from viktor.views import PlotlyAndDataResult
@@ -43,7 +46,6 @@ class ProjectController(ViktorController):
     """Controller class which acts as interface for this entity type."""
     label = "Data"
     parametrization = ProjectParametrization
-    viktor_convert_entity_field = True
 
     @PNGView("Results", duration_guess=4)
     def csv_visualization(self, params, **kwargs):
@@ -73,9 +75,11 @@ class ProjectController(ViktorController):
                          log_x=True, size_max=45, range_x=[100, 100000], range_y=[25, 90])
         return PlotlyResult(fig.to_json())
 
-    @PlotlyAndDataView("Results", duration_guess=3)
+    @PNGAndDataView("Results", duration_guess=3)
     def numpy_interpolate(self, params, **kwargs):
-        """Picks samples from a sin function and plots an interpolation with a given polynomial"""
+        """This is an example of how numpy and matplotlib can be used with viktor
+          In this example numpy is used to pick samples from a sin function and plot an interpolation with a
+          given order polynomial. The results are the visualised using mathplotlib"""
         x = np.linspace(0, 2 * np.pi, params.numpy_interp.linspace)
         pol_x = np.linspace(0, 2 * np.pi, 100)
 
@@ -84,14 +88,17 @@ class ProjectController(ViktorController):
         polyfit_function = np.poly1d(polyfit)
         y_interpolated = polyfit_function(params.numpy_interp.x)
 
-        # Create plotly figure
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=x, y=np.sin(x), name='Sin curve samples', mode='lines+markers'))
-        fig.add_scatter(x=[params.numpy_interp.x], y=[y_interpolated], name='Intersection', line_color='black')
-        fig.add_vline(params.numpy_interp.x, line_color='cyan')
+        # Plot figure using matplotlib
+        plt.figure()
+        plt.plot(x, np.sin(x))
+        plt.scatter([params.numpy_interp.x], [y_interpolated])
+        plt.axvline(params.numpy_interp.x, linestyle='--', color='red')
         if params.numpy_interp.show_graph:
-            fig.add_trace(go.Scatter(x=pol_x, y=polyfit_function(pol_x), name='Interpolation', mode='lines',
-                                     marker_color='red'))
+            plt.plot(pol_x, polyfit_function(pol_x))
+
+        figure_buffer = io.BytesIO()
+        plt.savefig(figure_buffer, format="png")
+
 
         # Create data group
         data_group = DataGroup(
@@ -100,11 +107,13 @@ class ProjectController(ViktorController):
             DataItem(label='Error', value=np.abs(y_interpolated - math.sin(params.numpy_interp.x)),
                      number_of_decimals=4)
         )
-        return PlotlyAndDataResult(fig.to_json(), data_group)
+        return PNGAndDataResult(figure_buffer, data_group)
 
     @PNGView("Results", duration_guess=4)
     def pokemon_type_heat_map(self, params, **kwargs):
-        """ Using the Pokemon database to create a correlation matrix en plots a heatmap"""
+        """ In this example, we show how to use pandas and matplotlib with VIKTOR.
+        Here, pandas are used to parse a database of pokemon types, that is then used to create a correlation
+        matrix that is visualized with matplotlib."""
         possible_types = params.pokemon_pandas.types
         n_types = len(possible_types)
 
@@ -138,9 +147,9 @@ class ProjectController(ViktorController):
         plt.title('% of pokemon having both types', fontsize=22)
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
-        f = io.BytesIO()
-        plt.savefig(f, format="png")
-        return PNGResult(f)
+        figure_buffer = io.BytesIO()
+        plt.savefig(figure_buffer, format="png")
+        return PNGResult(figure_buffer)
 
     def download_pokemon_csv(self):
         """ Download the Pokemon CSV dataset"""

@@ -28,23 +28,24 @@ from viktor.parametrization import Page
 from viktor.parametrization import Parametrization
 from viktor.parametrization import Text
 
-EXPLANATION_CSV_VISUALIZATION = "## CSV to Matplotlib visualization \nThis is a VIKTOR app that consists of four " \
+EXPLANATION_CSV_VISUALIZATION = "## Lets start here! \nThis is a VIKTOR app that consists of four " \
                                 "different pages, all doing something different with data. On top of this page you " \
-                                "can see the four different pages. \n\nIn this page it is possible to upload a CSV " \
+                                "can see the four different pages. \n\n### CSV to Matplotlib visualization \nIn this page it is possible to upload a CSV " \
                                 "file. If you want to use an example CSV file you can download one about pokemons by " \
                                 "pressing the button below."
 
 EXPLANATION_CSV_PARAMETERS = "After uploading and selecting a CSV file you can plot its data to a Matplotlib using " \
-                             "the parameters below."
+                             "the parameters below. Then you can click on the red update button on the right bottom."
 
 EXPLANATION_MATPLOTLIB = "After defining the parameters, VIKTOR will plot the data and visualize it in the view on " \
                          "the right. \n\nThe pokemon data was based on data found at " \
                          "[https://abichat.github.io/minesnancy-visu.html]" \
                          "(https://abichat.github.io/minesnancy-visu.html)"
 
-EXPLANATION_PLOTLY = "## Plotly integration \nWith VIKTOR it is super easy to use integrations with other software " \
-                     "like Plotly. On the right you can see an interactive plot with build-in data from the plotly" \
-                     "library. This is done with just 3 lines of code!"
+EXPLANATION_PLOTLY = "## Plotly integration \nWith VIKTOR it is super easy to use integrations with other libraries " \
+                     "like Plotly. On the right you can see an interactive plot with build-in data from the plotly " \
+                     "library. This is done with just 3 lines of code!" \
+                     "\n\nsource: [https://plotly.com/python/animations/](https://plotly.com/python/animations/)"
 
 EXPLANATION_NUMPY = "## Numpy interpolation \nThis example is used to show how you can create interactive apps using " \
                     "VIKTOR. In this example you can pick samples from a sin function. Then use numpy to estimate a " \
@@ -54,7 +55,7 @@ EXPLANATION_NUMPY = "## Numpy interpolation \nThis example is used to show how y
 EXPLANATION_NUMPY_INTERPOLATION = "Then click on ``Show interpolation`` and define the polynomial."
 
 EXPLANATION_NUMPY_ERROR = "Finally, use the slider below to check the error on certain locations. The error is " \
-                           "shown in the data view on the right"
+                          "shown in the data view on the right"
 
 EXPLANATION_PANDAS = "The last example shows how easy you can do data manipulation using VIKTOR. In this page we use " \
                      "the same pokemon database as before. Here the pandas library is used to manipulate data by " \
@@ -64,19 +65,20 @@ EXPLANATION_PANDAS = "The last example shows how easy you can do data manipulati
 
 
 def get_possible_pokemon_types(params, **kwargs):
-    """Get all possible values in type.1 and type.2 column. Excluding NA values"""
+    """Get all possible pokemon types present in the csv, excluding NA values.
+       Pokemon types are stored in columns type.1 and type.2"""
     dataframe = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
     return sorted(list(set(np.append(dataframe['Type.1'].unique(), dataframe['Type.2'].unique()))))
 
 
 def get_possible_columns(params, **kwargs):
-    """Get all possible column names"""
+    """Parse csv file to detect column names and return them as options for the user to select"""
     if params.csv_page.file_link:
         buffer = params.csv_page.file_link.file.open_binary()
         dataframe = pd.read_csv(buffer)
         buffer.close()
         return dataframe.columns.values.tolist()
-    return ['First upload a CSV file']
+    return ['First upload a CSV file']  # show to user no csv has been selected
 
 
 class ProjectParametrization(Parametrization):
