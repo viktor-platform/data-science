@@ -143,14 +143,14 @@ class ProjectController(ViktorController):
         plt.title('% of pokemon having both types', fontsize=22)
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
-        figure_buffer = io.BytesIO()
+        figure_buffer = BytesIO()
         plt.savefig(figure_buffer, format="png")
         return PNGResult(figure_buffer)
 
     def download_pokemon_csv(self):
         """ Download the Pokemon CSV dataset"""
         pokemon_file_path = Path(__file__).parent / 'datasets' / 'pokemon.csv'
-        pokemon_file_buffer = io.BytesIO()
+        pokemon_file_buffer = BytesIO()
         with open(pokemon_file_path, "rb") as pokemon_file:
             pokemon_file_buffer.write(pokemon_file.read())
         return DownloadResult(pokemon_file_buffer, 'pokemon.csv')
