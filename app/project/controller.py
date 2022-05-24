@@ -14,19 +14,17 @@ SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import io
 import math
+from io import BytesIO
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import seaborn as sns
 from viktor import UserException
 from viktor.core import ViktorController
-from viktor.core import progress_message
 from viktor.result import DownloadResult
 from viktor.views import DataGroup
 from viktor.views import DataItem
@@ -34,8 +32,6 @@ from viktor.views import PNGAndDataResult
 from viktor.views import PNGAndDataView
 from viktor.views import PNGResult
 from viktor.views import PNGView
-from viktor.views import PlotlyAndDataResult
-from viktor.views import PlotlyAndDataView
 from viktor.views import PlotlyResult
 from viktor.views import PlotlyView
 
@@ -55,14 +51,14 @@ class ProjectController(ViktorController):
 
         try:
             buffer = params.csv_page.file_link.file.open_binary()
-            df = pd.read_csv(buffer)
-            df.plot(kind='scatter', x=params.csv_page.options_x, y=params.csv_page.options_y)
+            dataframe = pd.read_csv(buffer)
+            dataframe.plot(kind='scatter', x=params.csv_page.options_x, y=params.csv_page.options_y)
         except ValueError as err:
             raise UserException(err)
 
         buffer.close()
 
-        png_buffer = io.BytesIO()
+        png_buffer = BytesIO()
         plt.savefig(png_buffer, format="png")
         return PNGResult(png_buffer)
 
@@ -80,23 +76,23 @@ class ProjectController(ViktorController):
         """This is an example of how numpy and matplotlib can be used with viktor
           In this example numpy is used to pick samples from a sin function and plot an interpolation with a
           given order polynomial. The results are the visualised using mathplotlib"""
-        x = np.linspace(0, 2 * np.pi, params.numpy_interp.linspace)
+        x_value = np.linspace(0, 2 * np.pi, params.numpy_interp.linspace)
         pol_x = np.linspace(0, 2 * np.pi, 100)
 
         # Interpolate over sinus curve
-        polyfit = np.polyfit(x, np.sin(x), params.numpy_interp.polynomial)
+        polyfit = np.polyfit(x_value, np.sin(x_value), params.numpy_interp.polynomial)
         polyfit_function = np.poly1d(polyfit)
         y_interpolated = polyfit_function(params.numpy_interp.x)
 
         # Plot figure using matplotlib
         plt.figure()
-        plt.plot(x, np.sin(x))
+        plt.plot(x_value, np.sin(x_value))
         plt.scatter([params.numpy_interp.x], [y_interpolated])
         plt.axvline(params.numpy_interp.x, linestyle='--', color='red')
         if params.numpy_interp.show_graph:
             plt.plot(pol_x, polyfit_function(pol_x))
 
-        figure_buffer = io.BytesIO()
+        figure_buffer = BytesIO()
         plt.savefig(figure_buffer, format="png")
 
 
