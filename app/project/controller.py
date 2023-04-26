@@ -29,9 +29,9 @@ from viktor.result import DownloadResult
 from viktor.views import DataGroup
 from viktor.views import DataItem
 from viktor.views import ImageAndDataResult 
-from viktor.views import ImageAndDataView
-from viktor.views import ImageResult
-from viktor.views import ImageView
+from viktor.views import ImageAndDataView 
+from viktor.views import PNGResult
+from viktor.views import PNGView
 from viktor.views import PlotlyResult
 from viktor.views import PlotlyView
 
@@ -43,7 +43,7 @@ class ProjectController(ViktorController):
     label = "Data"
     parametrization = ProjectParametrization
 
-    @ImageView("Results", duration_guess=4)
+    @PNGView("Results", duration_guess=4)
     def csv_visualization(self, params, **kwargs):
         """Reads csv file and plots its data."""
         if not params.csv_page.file_link:
@@ -60,7 +60,7 @@ class ProjectController(ViktorController):
 
         png_buffer = BytesIO()
         plt.savefig(png_buffer, format="png")
-        return ImageResult(png_buffer)
+        return PNGResult(png_buffer)
 
     @PlotlyView("Results", duration_guess=3)
     def plotly_visualization(self, params, **kwargs):
@@ -71,7 +71,7 @@ class ProjectController(ViktorController):
                          log_x=True, size_max=45, range_x=[100, 100000], range_y=[25, 90])
         return PlotlyResult(fig.to_json())
 
-    @ImageAndDataView("Results", duration_guess=3)
+    @ImageAndDataView ("Results", duration_guess=3)
     def numpy_interpolate(self, params, **kwargs):
         """This is an example of how numpy and matplotlib can be used with viktor
           In this example numpy is used to pick samples from a sin function and plot an interpolation with a
@@ -105,7 +105,7 @@ class ProjectController(ViktorController):
         )
         return ImageAndDataResult (figure_buffer, data_group)
 
-    @ImageView("Results", duration_guess=4)
+    @PNGView("Results", duration_guess=4)
     def pokemon_type_heat_map(self, params, **kwargs):
         """ In this example, we show how to use pandas and matplotlib with VIKTOR.
         Here, pandas are used to parse a database of pokemon types, that is then used to create a correlation
@@ -145,7 +145,7 @@ class ProjectController(ViktorController):
         plt.yticks(fontsize=12)
         figure_buffer = BytesIO()
         plt.savefig(figure_buffer, format="png")
-        return ImageResult(figure_buffer)
+        return PNGResult(figure_buffer)
 
     def download_pokemon_csv(self):
         """ Download the Pokemon CSV dataset"""
