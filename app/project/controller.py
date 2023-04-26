@@ -23,15 +23,15 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import seaborn as sns
-from viktor import UserException
+from viktor import UserError
 from viktor.core import ViktorController
 from viktor.result import DownloadResult
 from viktor.views import DataGroup
 from viktor.views import DataItem
-from viktor.views import PNGAndDataResult
-from viktor.views import PNGAndDataView
-from viktor.views import PNGResult
-from viktor.views import PNGView
+from viktor.views import ImageAndDataResult 
+from viktor.views import ImageAndDataView
+from viktor.views import ImageResult
+from viktor.views import ImageView
 from viktor.views import PlotlyResult
 from viktor.views import PlotlyView
 
@@ -43,24 +43,24 @@ class ProjectController(ViktorController):
     label = "Data"
     parametrization = ProjectParametrization
 
-    @PNGView("Results", duration_guess=4)
+    @ImageView("Results", duration_guess=4)
     def csv_visualization(self, params, **kwargs):
         """Reads csv file and plots its data."""
         if not params.csv_page.file_link:
-            raise UserException('Upload a CSV file and define its axis\'')
+            raise UserError('Upload a CSV file and define its axis\'')
 
         try:
             buffer = params.csv_page.file_link.file.open_binary()
             dataframe = pd.read_csv(buffer)
             dataframe.plot(kind='scatter', x=params.csv_page.options_x, y=params.csv_page.options_y)
         except ValueError as err:
-            raise UserException(err)
+            raise UserError(err)
 
         buffer.close()
 
         png_buffer = BytesIO()
         plt.savefig(png_buffer, format="png")
-        return PNGResult(png_buffer)
+        return ImageResult(png_buffer)
 
     @PlotlyView("Results", duration_guess=3)
     def plotly_visualization(self, params, **kwargs):
@@ -71,7 +71,7 @@ class ProjectController(ViktorController):
                          log_x=True, size_max=45, range_x=[100, 100000], range_y=[25, 90])
         return PlotlyResult(fig.to_json())
 
-    @PNGAndDataView("Results", duration_guess=3)
+    @ImageAndDataView("Results", duration_guess=3)
     def numpy_interpolate(self, params, **kwargs):
         """This is an example of how numpy and matplotlib can be used with viktor
           In this example numpy is used to pick samples from a sin function and plot an interpolation with a
@@ -103,9 +103,9 @@ class ProjectController(ViktorController):
             DataItem(label='Error', value=np.abs(y_interpolated - math.sin(params.numpy_interp.x)),
                      number_of_decimals=4)
         )
-        return PNGAndDataResult(figure_buffer, data_group)
+        return ImageAndDataResult (figure_buffer, data_group)
 
-    @PNGView("Results", duration_guess=4)
+    @ImageView("Results", duration_guess=4)
     def pokemon_type_heat_map(self, params, **kwargs):
         """ In this example, we show how to use pandas and matplotlib with VIKTOR.
         Here, pandas are used to parse a database of pokemon types, that is then used to create a correlation
@@ -114,7 +114,7 @@ class ProjectController(ViktorController):
         n_types = len(possible_types)
 
         if n_types < 2:
-            raise UserException("Please select more then 1 pokemon type as input. Click on Select all to see the"
+            raise UserError("Please select more then 1 pokemon type as input. Click on Select all to see the"
                                 "full figure.")
 
         dataframe = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
@@ -145,7 +145,7 @@ class ProjectController(ViktorController):
         plt.yticks(fontsize=12)
         figure_buffer = BytesIO()
         plt.savefig(figure_buffer, format="png")
-        return PNGResult(figure_buffer)
+        return ImageResult(figure_buffer)
 
     def download_pokemon_csv(self):
         """ Download the Pokemon CSV dataset"""
