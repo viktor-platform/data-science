@@ -154,3 +154,13 @@ class ProjectController(ViktorController):
         with open(pokemon_file_path, "rb") as pokemon_file:
             pokemon_file_buffer.write(pokemon_file.read())
         return DownloadResult(pokemon_file_buffer, 'pokemon.csv')
+    
+    def download_mat_prop_csv(self):
+        """ Download the material CSV dataset"""
+        material_file_path = Path(__file__).parent / 'datasets' / 'material.csv'
+        material_file_buffer = BytesIO()
+        with open(material_file_path, "rb") as material_file:
+            material_file_buffer.write(material_file.read())
+        return DownloadResult(material_file_buffer, 'material.csv')
+        
+

@@ -40,7 +40,12 @@ EXPLANATION_CSV_PARAMETERS = "After uploading and selecting a CSV file you can p
 EXPLANATION_MATPLOTLIB = "After defining the parameters, VIKTOR will plot the data and visualize it in the view on " \
                          "the right. \n\nThe pokemon data was based on data found at " \
                          "[https://abichat.github.io/minesnancy-visu.html]" \
-                         "(https://abichat.github.io/minesnancy-visu.html)"
+                         "(https://abichat.github.io/minesnancy-visu.html)" \
+                         "\n\nThe material data was based on data found at " \
+                         "[https://web.mit.edu/course/3/3.11/www/modules/props.html]" \
+                         "(https://web.mit.edu/course/3/3.11/www/modules/props.html)" \
+                         
+                         
 
 EXPLANATION_PLOTLY = "## Plotly integration \nWith VIKTOR it is super easy to use integrations with other libraries " \
                      "like Plotly. On the right you can see an interactive plot with build-in data from the plotly " \
@@ -86,7 +91,8 @@ class ProjectParametrization(Parametrization):
     csv_page = Page('CSV to Matplotlib visualization', views='csv_visualization')
     csv_page.explanation_csv_visualization = Text(EXPLANATION_CSV_VISUALIZATION)
     csv_page.file_link = FileField('CSV file', file_types=['.csv'])
-    csv_page.download_button = DownloadButton('Download CSV example', 'download_pokemon_csv')
+    csv_page.download_button_pokemon = DownloadButton('Download pokemon CSV  example', 'download_pokemon_csv')
+    csv_page.download_button_material = DownloadButton('Download material CSV example', 'download_mat_prop_csv')
     csv_page.explanation_csv_parameters = Text(EXPLANATION_CSV_PARAMETERS)
     csv_page.options_x = OptionField('X axis', options=get_possible_columns)
     csv_page.options_y = OptionField('Y axis', options=get_possible_columns)
