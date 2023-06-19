@@ -14,4 +14,10 @@ SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from .project.controller import ProjectController
+from .project.controller import ProjectController as Project
+
+from viktor import InitialEntity
+
+initial_entities = [
+    InitialEntity('Project', name='Data-science')
+]

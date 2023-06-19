@@ -1,4 +1,4 @@
-![](https://img.shields.io/badge/SDK-v13.0.0-blue) 
+![](https://img.shields.io/badge/SDK-v14.0.0-blue) 
 
 # Sample app data science
 This is a VIKTOR app that consists of four different pages, all doing something different with data. On top of this 
@@ -8,7 +8,7 @@ Use the [free version](https://www.viktor.ai/try-for-free) or apply for a [demo 
 
 
 ### 1. CSV to Matplotlib visualization
-In the first page it is possible to upload a CSV file. If you want to use an example CSV file you can download one about pokemons.
+In the first page it is possible to upload a CSV file. If you want to use an example CSV file you can download one about pokemons or one about the properties of different materials.
 After uploading and selecting a CSV file you can plot its data to a Matplotlib using the parameters
 ![](manifest/pictures/csv_to_matplotlib.png)
 
