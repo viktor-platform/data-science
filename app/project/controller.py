@@ -52,7 +52,14 @@ class ProjectController(ViktorController):
         try:
             buffer = params.csv_page.file_link.file.open_binary()
             dataframe = pd.read_csv(buffer)
-            dataframe.plot(kind='scatter', x=params.csv_page.options_x, y=params.csv_page.options_y)
+            fig, ax = plt.subplots()
+            dataframe.plot(kind='scatter', x=params.csv_page.options_x, y=params.csv_page.options_y, ax=ax)
+
+            for k, row in dataframe.iterrows():
+                txt_first_column = row.iloc[0]  # the text is equal to the first column
+                ax.text(x=row[params.csv_page.options_x], y= row[params.csv_page.options_y], s= txt_first_column)
+
+        
         except ValueError as err:
             raise UserError(err)
 
@@ -106,51 +113,34 @@ class ProjectController(ViktorController):
         return ImageAndDataResult (figure_buffer, data_group)
 
     @ImageView("Results", duration_guess=4)
-    def pokemon_type_heat_map(self, params, **kwargs):
+    def correlation_map(self, params, **kwargs):
         """ In this example, we show how to use pandas and matplotlib with VIKTOR.
-        Here, pandas are used to parse a database of pokemon types, that is then used to create a correlation
+        Here, pandas are used to parse a database of props_material types, that is then used to create a correlation
         matrix that is visualized with matplotlib."""
-        possible_types = params.pokemon_pandas.types
-        n_types = len(possible_types)
+        # Set a random seed for reproducibility
+        columns = params.correlation_matrix.types
+        
+        # Generate a random pandas DataFrame
+        data = pd.DataFrame(np.random.rand(10, len(columns)), columns=columns)
 
-        if n_types < 2:
-            raise UserError("Please select more then 1 pokemon type as input. Click on Select all to see the"
-                                "full figure.")
+        # Calculate the correlation matrix
+        corr_matrix = data.corr()
 
-        dataframe = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
-
-        # Create correlation matrix
-        matrix = [[0 for _ in range(n_types)] for _ in range(n_types)]
-        for i in range(n_types):
-            for j in range(n_types):
-                if i != j:
-                    connection_between_types = (
-                            dataframe[
-                                (dataframe['Type.1'] == possible_types[i]) &
-                                (dataframe['Type.2'] == possible_types[j])
-                            ].count()[0] +
-                            dataframe[
-                                (dataframe['Type.1'] == possible_types[j]) &
-                                (dataframe['Type.2'] == possible_types[i])
-                            ].count()[0]
-                    )
-                    matrix[i][j] = np.round(connection_between_types / dataframe.shape[0] * 100, 2)
-
-        # Plot figure
-        plt.figure(figsize=(12, 10), dpi=80)
-        sns.heatmap(matrix, xticklabels=possible_types, yticklabels=possible_types,
-                    cmap=sns.cubehelix_palette(as_cmap=True), annot=True)
-        plt.title('% of pokemon having both types', fontsize=22)
-        plt.xticks(fontsize=12)
-        plt.yticks(fontsize=12)
+        # Plotting the correlation matrix
+        plt.figure(figsize=(8, 6))
+        plt.imshow(corr_matrix, cmap='coolwarm', interpolation='nearest')
+        plt.colorbar()
+        plt.xticks(range(len(corr_matrix)), corr_matrix.columns, rotation='vertical')
+        plt.yticks(range(len(corr_matrix)), corr_matrix.columns)
+        plt.title('Correlation Matrix')
         figure_buffer = BytesIO()
         plt.savefig(figure_buffer, format="png")
         return ImageResult(figure_buffer)
 
-    def download_pokemon_csv(self):
+    def download_props_material_csv(self):
         """ Download the Pokemon CSV dataset"""
-        pokemon_file_path = Path(__file__).parent / 'datasets' / 'pokemon.csv'
-        pokemon_file_buffer = BytesIO()
-        with open(pokemon_file_path, "rb") as pokemon_file:
-            pokemon_file_buffer.write(pokemon_file.read())
-        return DownloadResult(pokemon_file_buffer, 'pokemon.csv')
+        props_material_file_path = Path(__file__).parent / 'datasets' / 'props_material.csv'
+        props_material_file_buffer = BytesIO()
+        with open(props_material_file_path, "rb") as props_material_file:
+            props_material_file_buffer.write(props_material_file.read())
+        return DownloadResult(props_material_file_buffer, 'props_material.csv')

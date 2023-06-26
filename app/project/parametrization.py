@@ -31,14 +31,14 @@ from viktor.parametrization import Text
 EXPLANATION_CSV_VISUALIZATION = "## Lets start here! \nThis is a VIKTOR app that consists of four " \
                                 "different pages, all doing something different with data. On top of this page you " \
                                 "can see the four different pages. \n\n### CSV to Matplotlib visualization \nIn this page it is possible to upload a CSV " \
-                                "file. If you want to use an example CSV file you can download one about pokemons by " \
+                                "file. If you want to use an example CSV file you can download one about props_materials by " \
                                 "pressing the button below."
 
 EXPLANATION_CSV_PARAMETERS = "After uploading and selecting a CSV file you can plot its data to a Matplotlib using " \
                              "the parameters below. Then you can click on the red update button on the right bottom."
 
 EXPLANATION_MATPLOTLIB = "After defining the parameters, VIKTOR will plot the data and visualize it in the view on " \
-                         "the right. \n\nThe pokemon data was based on data found at " \
+                         "the right. \n\nThe props_material data was based on data found at " \
                          "[https://abichat.github.io/minesnancy-visu.html]" \
                          "(https://abichat.github.io/minesnancy-visu.html)"
 
@@ -58,17 +58,26 @@ EXPLANATION_NUMPY_ERROR = "Finally, use the slider below to check the error on c
                           "shown in the data view on the right"
 
 EXPLANATION_PANDAS = "The last example shows how easy you can do data manipulation using VIKTOR. In this page we use " \
-                     "the same pokemon database as before. Here the pandas library is used to manipulate data by " \
-                     "first removing all data-entries missing a value for its type. Then it creates a corralation " \
+                     "a  database that is randomly created with numpys. Then it creates a corralation " \
                      "matrix used to plot a heatmap.\n\nBelow you can define the types you want to compare. Click " \
                      "on `Select all` to see the full plot. Then press the update button right below."
 
 
-def get_possible_pokemon_types(params, **kwargs):
-    """Get all possible pokemon types present in the csv, excluding NA values.
+def get_possible_props_material_types(params, **kwargs):
+    """Get all possible props_material types present in the csv, excluding NA values.
        Pokemon types are stored in columns type.1 and type.2"""
-    dataframe = pd.read_csv(Path(__file__).parent / 'datasets' / 'pokemon.csv').dropna()
-    return sorted(list(set(np.append(dataframe['Type.1'].unique(), dataframe['Type.2'].unique()))))
+    dataframe = pd.read_csv(Path(__file__).parent / 'datasets' / 'props_material.csv')
+    
+
+    list_materials = []
+    for material in dataframe["MATERIAL"].unique():
+        if str(material) != 'nan':
+            list_materials.append(material)
+    
+    print(list_materials)
+    return list_materials
+
+    #return sorted(list(set(np.append(dataframe['MATERIAL'].unique(), dataframe['Type'].unique()))))
 
 
 def get_possible_columns(params, **kwargs):
@@ -86,7 +95,7 @@ class ProjectParametrization(Parametrization):
     csv_page = Page('CSV to Matplotlib visualization', views='csv_visualization')
     csv_page.explanation_csv_visualization = Text(EXPLANATION_CSV_VISUALIZATION)
     csv_page.file_link = FileField('CSV file', file_types=['.csv'])
-    csv_page.download_button = DownloadButton('Download CSV example', 'download_pokemon_csv')
+    csv_page.download_button = DownloadButton('Download CSV example', 'download_props_material_csv')
     csv_page.explanation_csv_parameters = Text(EXPLANATION_CSV_PARAMETERS)
     csv_page.options_x = OptionField('X axis', options=get_possible_columns)
     csv_page.options_y = OptionField('Y axis', options=get_possible_columns)
@@ -105,6 +114,6 @@ class ProjectParametrization(Parametrization):
     numpy_interp.explanation_numpy_error = Text(EXPLANATION_NUMPY_ERROR)
     numpy_interp.x = NumberField('X value', min=0, max=6.2, step=0.1, default=0, variant='slider')
 
-    pokemon_pandas = Page('Pokemon with pandas', views='pokemon_type_heat_map')
-    pokemon_pandas.explanation = Text(EXPLANATION_PANDAS)
-    pokemon_pandas.types = MultiSelectField('Possible pokemon types', options=get_possible_pokemon_types)
+    correlation_matrix = Page('Random data set with pandas', views='correlation_map')
+    correlation_matrix.explanation = Text(EXPLANATION_PANDAS)
+    correlation_matrix.types = MultiSelectField('Columns', options = [chr(ord('A') + i) for i in range(26)])
