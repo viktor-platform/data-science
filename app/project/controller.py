@@ -34,6 +34,9 @@ from viktor.views import ImageResult
 from viktor.views import ImageView
 from viktor.views import PlotlyResult
 from viktor.views import PlotlyView
+from viktor.views import WebResult
+from viktor.views import WebView
+
 
 from .parametrization import ProjectParametrization
 
@@ -144,3 +147,11 @@ class ProjectController(ViktorController):
         with open(pokemon_file_path, "rb") as pokemon_file:
             pokemon_file_buffer.write(pokemon_file.read())
         return DownloadResult(pokemon_file_buffer, 'pokemon.csv')
+
+    @WebView("What's next?", duration_guess=1)
+    def whats_next(self, params, **kwargs):
+        """Initiates the process of rendering the "What's next" tab."""
+        html_path = Path(__file__).parent / "next_step.html"
+        with html_path.open(encoding="utf-8") as _file:
+            html_string = _file.read()
+        return WebResult(html=html_string)

@@ -97,7 +97,7 @@ def get_possible_columns(params, **kwargs):
 
 class ProjectParametrization(Parametrization):
     """Defines the input fields in left-side of the web UI in the Sample entity (Editor)."""
-    csv_page = Page('CSV to Matplotlib visualization', views='csv_visualization')
+    csv_page = Page('CSV to Matplotlib visualization', views=['csv_visualization', "whats_next"])
     csv_page.explanation_csv_visualization = Text(EXPLANATION_CSV_VISUALIZATION)
     csv_page.file_link = FileField('CSV file', file_types=['.csv'])
     csv_page.download_button = DownloadButton('Download CSV example', 'download_pokemon_csv')
@@ -109,7 +109,7 @@ class ProjectParametrization(Parametrization):
     plotly_express_page = Page('Plotly', views='plotly_visualization')
     plotly_express_page.explanation = Text(EXPLANATION_PLOTLY)
 
-    numpy_interp = Page('Numpy interpolation', views='numpy_interpolate')
+    numpy_interp = Page('Numpy interpolation', views=['numpy_interpolate', "whats_next"])
     numpy_interp.explanation_numpy = Text(EXPLANATION_NUMPY)
     numpy_interp.linspace = NumberField('Number of samples', min=4, max=15, step=1, default=6, variant='slider')
     numpy_interp.explanation_numpy_interpolation = Text(EXPLANATION_NUMPY_INTERPOLATION)
@@ -119,6 +119,6 @@ class ProjectParametrization(Parametrization):
     numpy_interp.explanation_numpy_error = Text(EXPLANATION_NUMPY_ERROR)
     numpy_interp.x = NumberField('X value', min=0, max=6.2, step=0.1, default=0, variant='slider')
 
-    correlation_matrix = Page('Random data set with pandas', views='correlation_map')
+    correlation_matrix = Page('Random data set with pandas', views=['correlation_map', "whats_next"])
     correlation_matrix.explanation = Text(EXPLANATION_PANDAS)
     correlation_matrix.types = MultiSelectField('Columns', options = [chr(ord('A') + i) for i in range(26)])
