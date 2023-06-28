@@ -141,12 +141,12 @@ class ProjectController(ViktorController):
         return ImageResult(figure_buffer)
 
     def download_props_material_csv(self):
-        """ Download the Pokemon CSV dataset"""
-        pokemon_file_path = Path(__file__).parent / 'datasets' / 'pokemon.csv'
-        pokemon_file_buffer = BytesIO()
-        with open(pokemon_file_path, "rb") as pokemon_file:
-            pokemon_file_buffer.write(pokemon_file.read())
-        return DownloadResult(pokemon_file_buffer, 'pokemon.csv')
+        """ Download the props_material CSV dataset"""
+        props_material_file_path = Path(__file__).parent / 'datasets' / 'props_material.csv'
+        props_material_file_buffer = BytesIO()
+        with open(props_material_file_path, "rb") as props_material_file:
+            props_material_file_buffer.write(props_material_file.read())
+        return DownloadResult(props_material_file_buffer, 'props_material.csv')
 
     @WebView("What's next?", duration_guess=1)
     def whats_next(self, params, **kwargs):

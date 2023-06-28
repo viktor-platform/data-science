@@ -100,7 +100,7 @@ class ProjectParametrization(Parametrization):
     csv_page = Page('CSV to Matplotlib visualization', views=['csv_visualization', "whats_next"])
     csv_page.explanation_csv_visualization = Text(EXPLANATION_CSV_VISUALIZATION)
     csv_page.file_link = FileField('CSV file', file_types=['.csv'])
-    csv_page.download_button = DownloadButton('Download CSV example', 'download_pokemon_csv')
+    csv_page.download_button = DownloadButton('Download CSV example', 'download_props_material_csv')
     csv_page.explanation_csv_parameters = Text(EXPLANATION_CSV_PARAMETERS)
     csv_page.options_x = OptionField('X axis', options=get_possible_columns)
     csv_page.options_y = OptionField('Y axis', options=get_possible_columns)
