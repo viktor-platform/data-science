@@ -16,8 +16,3 @@ SOFTWARE.
 """
 from .project.controller import ProjectController as Project
 
-from viktor import InitialEntity
-
-initial_entities = [
-    InitialEntity('Project', name='Data-science')
-]
