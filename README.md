@@ -6,8 +6,9 @@ Use the [free version](https://www.viktor.ai/try-for-free) or apply for a [demo 
 to try the functionality yourself!
 
 ### 1. CSV to Matplotlib visualization
-In the first page it is possible to upload a CSV file. If you want to use an example CSV file you can download one
-about material properties. After uploading and selecting a CSV file you plot its data using Matplotlib.
+In the first page it is possible to upload a CSV file. If you want to use an example CSV file you can
+download one about the properties of different materials. After uploading and selecting a CSV file you
+can plot its data using Matplotlib.
 
 ![](.viktor-template/csv_to_matplotlib.png)
 
