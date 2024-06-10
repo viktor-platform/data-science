@@ -1,4 +1,4 @@
-"""Copyright (c) 2022 VIKTOR B.V.
+"""Copyright (c) 2024 VIKTOR B.V.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -14,8 +14,6 @@ SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from pathlib import Path
-
 import pandas as pd
 from viktor.parametrization import (
     ViktorParametrization,
@@ -57,21 +55,9 @@ EXPLANATION_NUMPY_ERROR = "Finally, use the slider below to check the error on c
                           "shown in the data view on the right"
 
 EXPLANATION_PANDAS = "The last example shows how easy you can do data manipulation using VIKTOR. In this page we use " \
-                     "a database that is randomly created with numpy. Then it creates a correlation " \
-                     "matrix used to plot a heatmap.\n\nBelow you can define the types you want to compare. Click " \
+                     "a database that is randomly created with numpy. Then Pandas is used to create a correlation matrix " \
+                     " which is used to plot a heatmap.\n\nBelow you can define the types you want to compare. Click " \
                      "on `Select all` to see the full plot. Then press the update button right below."
-
-
-def get_possible_props_material_types(params, **kwargs):
-    """Get all possible props_material types present in the csv, excluding NA values."""
-    dataframe = pd.read_csv(Path(__file__).parent / 'datasets' / 'props_material.csv')
-
-    list_materials = []
-    for material in dataframe["MATERIAL"].unique():
-        if str(material) != 'nan':
-            list_materials.append(material)
-
-    return list_materials
 
 
 def get_possible_columns(params, **kwargs):
@@ -100,16 +86,16 @@ class Parametrization(ViktorParametrization):
     numpy_interp = Page('Numpy interpolation', views='numpy_interpolate', width=30)
     numpy_interp.explanation_numpy = Text(EXPLANATION_NUMPY)
     numpy_interp.linspace = NumberField(
-        'Number of samples', min=4, max=15, step=1, default=6, variant='slider', flex=75
+        'Number of samples', min=4, max=15, step=1, default=6, variant='slider', flex=70
     )
     numpy_interp.explanation_numpy_interpolation = Text(EXPLANATION_NUMPY_INTERPOLATION)
     numpy_interp.polynomial = NumberField(
-        'Polynomial for interpolation', min=0, max=30, step=1, default=8, variant='slider', flex=75
+        'Polynomial for interpolation', min=0, max=30, step=1, default=8, variant='slider', flex=70
     )
-    numpy_interp.show_graph = BooleanField('Show interpolation', flex=25)
+    numpy_interp.show_graph = BooleanField('Show interpolation', flex=30)
     numpy_interp.explanation_numpy_error = Text(EXPLANATION_NUMPY_ERROR)
     numpy_interp.x = NumberField(
-        'X value', min=0, max=6.2, step=0.1, default=1.3, variant='slider', flex=75
+        'X value', min=0, max=6.2, step=0.1, default=1.3, variant='slider', flex=70
     )
 
     _columns = [chr(ord('A') + i) for i in range(26)]
