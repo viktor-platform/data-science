@@ -1,4 +1,4 @@
-"""Copyright (c) 2022 VIKTOR B.V.
+"""Copyright (c) 2024 VIKTOR B.V.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -135,6 +135,6 @@ class Controller(ViktorController):
 
     def download_props_material_csv(self):
         """ Download the props_material CSV dataset"""
-        file_path = Path(__file__).parent / 'datasets' / 'props_material.csv'
+        file_path = Path(__file__).parent / 'props_material.csv'
         file = File.from_path(file_path)
         return DownloadResult(file, 'props_material.csv')
