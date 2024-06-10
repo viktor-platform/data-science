@@ -14,17 +14,17 @@ SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+from pathlib import Path
+
 import math
 from io import BytesIO
-from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.express as px
-import seaborn as sns
 from viktor import UserError
-from viktor.core import ViktorController
+from viktor.core import ViktorController, File
 from viktor.result import DownloadResult
 from viktor.views import DataGroup
 from viktor.views import DataItem
@@ -34,17 +34,13 @@ from viktor.views import ImageResult
 from viktor.views import ImageView
 from viktor.views import PlotlyResult
 from viktor.views import PlotlyView
-from viktor.views import WebResult
-from viktor.views import WebView
+
+from .parametrization import Parametrization
 
 
-from .parametrization import ProjectParametrization
-
-
-class ProjectController(ViktorController):
-    """Controller class which acts as interface for this entity type."""
+class Controller(ViktorController):
     label = "Data"
-    parametrization = ProjectParametrization
+    parametrization = Parametrization
 
     @ImageView("Results", duration_guess=4)
     def csv_visualization(self, params, **kwargs):
@@ -62,7 +58,6 @@ class ProjectController(ViktorController):
                 txt_first_column = row.iloc[0]  # the text is equal to the first column
                 ax.text(x=row[params.csv_page.options_x], y= row[params.csv_page.options_y], s= txt_first_column)
 
-        
         except ValueError as err:
             raise UserError(err)
 
@@ -85,7 +80,7 @@ class ProjectController(ViktorController):
     def numpy_interpolate(self, params, **kwargs):
         """This is an example of how numpy and matplotlib can be used with viktor
           In this example numpy is used to pick samples from a sin function and plot an interpolation with a
-          given order polynomial. The results are the visualised using mathplotlib"""
+          given order polynomial."""
         x_value = np.linspace(0, 2 * np.pi, params.numpy_interp.linspace)
         pol_x = np.linspace(0, 2 * np.pi, 100)
 
@@ -105,20 +100,18 @@ class ProjectController(ViktorController):
         figure_buffer = BytesIO()
         plt.savefig(figure_buffer, format="png")
 
-
         # Create data group
         data_group = DataGroup(
             DataItem(label='Y-interpolated', value=y_interpolated, number_of_decimals=4),
             DataItem(label='Y-calculated', value=math.sin(params.numpy_interp.x), number_of_decimals=4),
-            DataItem(label='Error', value=np.abs(y_interpolated - math.sin(params.numpy_interp.x)),
-                     number_of_decimals=4)
+            DataItem(label='Error', value=np.abs(y_interpolated - math.sin(params.numpy_interp.x)), number_of_decimals=4)
         )
-        return ImageAndDataResult (figure_buffer, data_group)
+        return ImageAndDataResult(figure_buffer, data_group)
 
-    @ImageView("Results", duration_guess=4)
+    @ImageView("Results", duration_guess=1)
     def correlation_map(self, params, **kwargs):
         """ In this example, we show how to use pandas and matplotlib with VIKTOR.
-        Here, pandas are used to parse a database of props_material types, that is then used to create a correlation
+        Here, pandas is used to parse a database of props_material types, that is then used to create a correlation
         matrix that is visualized with matplotlib."""
         # Set a random seed for reproducibility
         columns = params.correlation_matrix.types
@@ -141,17 +134,7 @@ class ProjectController(ViktorController):
         return ImageResult(figure_buffer)
 
     def download_props_material_csv(self):
-        """ Download the Pokemon CSV dataset"""
-        pokemon_file_path = Path(__file__).parent / 'datasets' / 'pokemon.csv'
-        pokemon_file_buffer = BytesIO()
-        with open(pokemon_file_path, "rb") as pokemon_file:
-            pokemon_file_buffer.write(pokemon_file.read())
-        return DownloadResult(pokemon_file_buffer, 'pokemon.csv')
-
-    @WebView("What's next?", duration_guess=1)
-    def whats_next(self, params, **kwargs):
-        """Initiates the process of rendering the "What's next" tab."""
-        html_path = Path(__file__).parent / "next_step.html"
-        with html_path.open(encoding="utf-8") as _file:
-            html_string = _file.read()
-        return WebResult(html=html_string)
+        """ Download the props_material CSV dataset"""
+        file_path = Path(__file__).parent / 'datasets' / 'props_material.csv'
+        file = File.from_path(file_path)
+        return DownloadResult(file, 'props_material.csv')
