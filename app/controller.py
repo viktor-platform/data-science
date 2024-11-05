@@ -23,30 +23,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.express as px
-from viktor import UserError
-from viktor.core import ViktorController, File
-from viktor.result import DownloadResult
-from viktor.views import DataGroup
-from viktor.views import DataItem
-from viktor.views import ImageAndDataResult 
-from viktor.views import ImageAndDataView 
-from viktor.views import ImageResult
-from viktor.views import ImageView
-from viktor.views import PlotlyResult
-from viktor.views import PlotlyView
+import viktor as vkt
 
 from .parametrization import Parametrization
 
 
-class Controller(ViktorController):
+class Controller(vkt.ViktorController):
     label = "Data"
     parametrization = Parametrization
 
-    @ImageView("Results", duration_guess=4)
+    @vkt.ImageView("Results", duration_guess=4)
     def csv_visualization(self, params, **kwargs):
         """Reads csv file and plots its data."""
         if not params.csv_page.file_link:
-            raise UserError('Upload a CSV file and define its axis\'')
+            raise vkt.UserError('Upload a CSV file and define its axis\'')
 
         try:
             buffer = params.csv_page.file_link.file.open_binary()
@@ -59,24 +49,24 @@ class Controller(ViktorController):
                 ax.text(x=row[params.csv_page.options_x], y= row[params.csv_page.options_y], s= txt_first_column)
 
         except ValueError as err:
-            raise UserError(err)
+            raise vkt.UserError(err)
 
         buffer.close()
 
         png_buffer = BytesIO()
         plt.savefig(png_buffer, format="png")
-        return ImageResult(png_buffer)
+        return vkt.ImageResult(png_buffer)
 
-    @PlotlyView("Results", duration_guess=3)
+    @vkt.PlotlyView("Results", duration_guess=3)
     def plotly_visualization(self, params, **kwargs):
         """Use the build-in gapminder dataset from plotly to create a plot."""
         dataframe = px.data.gapminder()
         fig = px.scatter(dataframe, x="gdpPercap", y="lifeExp", animation_frame="year", animation_group="country",
                          size="pop", color="continent", hover_name="country", facet_col="continent",
                          log_x=True, size_max=45, range_x=[100, 100000], range_y=[25, 90])
-        return PlotlyResult(fig.to_json())
+        return vkt.PlotlyResult(fig.to_json())
 
-    @ImageAndDataView ("Results", duration_guess=3)
+    @vkt.ImageAndDataView ("Results", duration_guess=3)
     def numpy_interpolate(self, params, **kwargs):
         """This is an example of how numpy and matplotlib can be used with viktor
           In this example numpy is used to pick samples from a sin function and plot an interpolation with a
@@ -101,14 +91,14 @@ class Controller(ViktorController):
         plt.savefig(figure_buffer, format="png")
 
         # Create data group
-        data_group = DataGroup(
-            DataItem(label='Y-interpolated', value=y_interpolated, number_of_decimals=4),
-            DataItem(label='Y-calculated', value=math.sin(params.numpy_interp.x), number_of_decimals=4),
-            DataItem(label='Error', value=np.abs(y_interpolated - math.sin(params.numpy_interp.x)), number_of_decimals=4)
+        data_group = vkt.DataGroup(
+            vkt.DataItem(label='Y-interpolated', value=y_interpolated, number_of_decimals=4),
+            vkt.DataItem(label='Y-calculated', value=math.sin(params.numpy_interp.x), number_of_decimals=4),
+            vkt.DataItem(label='Error', value=np.abs(y_interpolated - math.sin(params.numpy_interp.x)), number_of_decimals=4)
         )
-        return ImageAndDataResult(figure_buffer, data_group)
+        return vkt.ImageAndDataResult(figure_buffer, data_group)
 
-    @ImageView("Results", duration_guess=1)
+    @vkt.ImageView("Results", duration_guess=1)
     def correlation_map(self, params, **kwargs):
         """ In this example, we show how to use pandas and matplotlib with VIKTOR.
         Here, pandas is used to parse a database of props_material types, that is then used to create a correlation
@@ -131,10 +121,10 @@ class Controller(ViktorController):
         plt.title('Correlation Matrix')
         figure_buffer = BytesIO()
         plt.savefig(figure_buffer, format="png")
-        return ImageResult(figure_buffer)
+        return vkt.ImageResult(figure_buffer)
 
     def download_props_material_csv(self):
         """ Download the props_material CSV dataset"""
         file_path = Path(__file__).parent / 'props_material.csv'
-        file = File.from_path(file_path)
-        return DownloadResult(file, 'props_material.csv')
+        file = vkt.File.from_path(file_path)
+        return vkt.DownloadResult(file, 'props_material.csv')
